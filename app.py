@@ -2,12 +2,11 @@ import streamlit as st
 import fitz  # PyMuPDF
 
 # URL del PDF en GitHub
-PDF_URL = "https://github.com/tu_usuario/tu_repositorio/raw/main/Linux%20Command%20Reference%20-%20FOSSwire.pdf"
+PDF_URL = "https://github.com/inefable12/comandos_basicos_linux/raw/main/LinuxCommandReferenceFOSSwire.pdf"
 
 st.title("Buscador de Comandos en PDF de Linux")
 
 # Descargar y leer el PDF desde el enlace
-@st.cache_data
 def leer_pdf(url):
     # Cargar PDF desde URL
     doc = fitz.open(stream=fitz.open(url=url).write(), filetype="pdf")
