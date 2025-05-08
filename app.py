@@ -17,7 +17,7 @@ def extraer_texto(pdf_bytes):
 texto_pdf = ""
 
 if opcion == "Desde GitHub":
-    url = st.text_input("Pega la URL RAW del PDF en GitHub:", "https://raw.githubusercontent.com/inefable12/comandos_basicos_linux/src/main/LinuxCommandReferenceFOSSwire.pdf")
+    url = st.text_input("Pega la URL RAW del PDF en GitHub:", "https://raw.githubusercontent.com/inefable12/comandos_basicos_linux/main/LinuxCommandReferenceFOSSwire.pdf")
     if url:
         try:
             response = requests.get(url)
