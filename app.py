@@ -1,33 +1,49 @@
 import streamlit as st
 import fitz  # PyMuPDF
+import io
+import requests
 
-# URL del PDF en GitHub
-PDF_URL = "https://raw.githubusercontent.com/inefable12/comandos_basicos_linux/src/main/LinuxCommandReferenceFOSSwire.pdf"
+st.title("Comandos de Linux")
 
-st.title("Buscador de Comandos en PDF de Linux")
+opcion = st.radio("¿Cómo deseas cargar el PDF?", ["Desde GitHub", "Subir archivo PDF"])
 
-# Descargar y leer el PDF desde el enlace
-def leer_pdf(url):
-    # Cargar PDF desde URL
-    doc = fitz.open(stream=fitz.open(url=url).write(), filetype="pdf")
-    texto_total = ""
+def extraer_texto(pdf_bytes):
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    texto = ""
     for page in doc:
-        texto_total += page.get_text()
-    return texto_total
+        texto += page.get_text()
+    return texto
 
-texto_pdf = leer_pdf(PDF_URL)
+texto_pdf = ""
 
-# Entrada de palabra clave
-palabra_clave = st.text_input("Introduce una palabra o comando a buscar:")
+if opcion == "Desde GitHub":
+    url = st.text_input("Pega la URL RAW del PDF en GitHub:", "https://raw.githubusercontent.com/inefable12/comandos_basicos_linux/src/main/LinuxCommandReferenceFOSSwire.pdf")
+    if url:
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            texto_pdf = extraer_texto(response.content)
+            st.success("PDF cargado exitosamente desde GitHub.")
+        except Exception as e:
+            st.error(f"No se pudo cargar el PDF desde la URL. Detalles: {e}")
+else:
+    archivo = st.file_uploader("Sube tu archivo PDF", type="pdf")
+    if archivo:
+        try:
+            texto_pdf = extraer_texto(archivo.read())
+            st.success("PDF cargado exitosamente desde archivo.")
+        except Exception as e:
+            st.error(f"No se pudo procesar el PDF. Detalles: {e}")
 
-# Mostrar resultados si se introduce una palabra
-if palabra_clave:
-    st.markdown(f"### Resultados para: `{palabra_clave}`")
-    lineas = texto_pdf.split("\n")
-    resultados = [linea for linea in lineas if palabra_clave.lower() in linea.lower()]
-    
-    if resultados:
-        for res in resultados:
-            st.write(f"- {res}")
-    else:
-        st.warning("No se encontraron coincidencias.")
+# Búsqueda si el PDF ya fue cargado
+if texto_pdf:
+    palabra = st.text_input("Escribe el comando o palabra a buscar:")
+    if palabra:
+        st.markdown(f"### Resultados para: `{palabra}`")
+        lineas = texto_pdf.split("\n")
+        resultados = [linea for linea in lineas if palabra.lower() in linea.lower()]
+        if resultados:
+            for r in resultados:
+                st.write(f"- {r}")
+        else:
+            st.warning("No se encontraron coincidencias.")
